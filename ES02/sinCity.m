@@ -1,4 +1,4 @@
-I = imread('bmw.jpg');
+I = imread('ferrari.jpg');
 
 ISinCity = SinCity(I, 0.1);
 

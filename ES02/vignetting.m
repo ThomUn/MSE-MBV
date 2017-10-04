@@ -2,7 +2,7 @@ I = imread('bmw.jpg');
 
 subplot(2,1,1);
 imshow(I);
-subplot(2,2,1);
+subplot(2,1,2);
 Ivignetted = vignette(I,0.1);
 imshow(Ivignetted);
 imwrite(Ivignetted, 'vignetted.png');

@@ -1,40 +1,43 @@
-I = imread('bmw.jpg');
+clear all
+IM = imread('bmw.jpg');
 
-ISinCity = SinCity(I, 0.1);
+%Tolerance how much the colors can be different
+tolerance = 0.1;
 
+%Get the selected poly mask
+polyMask = roipoly(IM);
+
+%Convert RGB to HSV
+HSV = rgb2hsv(IM);
+hueChannel = HSV(:,:,1);
+poly = hueChannel.*polyMask;
+
+%Calculates the middle value of the selected area
+dominantColor = mean2(poly);
+
+%To calculate the color mask, I double-checked with the following solution
+%of stackoverflow:
+%https://stackoverflow.com/questions/14446061/a-boolean-function-for-finding-if-a-hsl-based-color-is-near-to-another-color 
+colorMask = logical(mod(abs(dominantColor - hueChannel), (1 - tolerance)) > tolerance);
+
+%Every element in this colormask and the marked area gets the saturation 0
+%-> pixel looks like it is gray
+saturationChannel = HSV(:,:,2);
+saturationChannel(colorMask) = 0;
+HSV(:,:,2) = saturationChannel;
+
+%Convert from HSV to RGB image
+colorIsolatedImage = hsv2rgb(HSV);
+
+%Display original
 subplot(1,2,1);
-imshow(I);
+imshow(IM);
+title('Original image');
 
+%Display color isolated image
 subplot(1,2,2);
-imshow(ISinCity);
+imshow(colorIsolatedImage);
+title('Color isolated image');
 
-imwrite(ISinCity, 'sinCity.png');
-
-function image = SinCity(image, tolerance)
-   polyMask = roipoly(image);
-   HSV = rgb2hsv(image);
-   hueChannel = HSV(:,:,1);
-   poly = hueChannel.*polyMask;
-     
-   %Berechnen des durchschnittlichen HUE-Wertes in der (zweidimensionalen)
-   %Auswahl
-   dominantColor = mean2(poly);
-   
-   %Berechnet die Differenz aus der dominanten Farbe und dem jeweiligen
-   %HUE-Wert Modulo 1 minus dem Toleranzbereich.
-   %Je höher der Toleranzwert (bis 1) ist, desto geringer ist der Modulus
-   %und desto kleiner die Ergebnisse.
-   %Je kleiner der Toleranzwert (bis 0) ist, desto größer ist der Modulus 
-   %und desto größer die Ergebnisse.
-   %Frei nach
-   %https://stackoverflow.com/questions/14446061/a-boolean-function-for-finding-if-a-hsl-based-color-is-near-to-another-color 
-   colorMask = logical(mod(abs(dominantColor - hueChannel), (1 - tolerance)) > tolerance);
-
-   %Jedes Element innerhalb dieser Marke wird auf 0% Sättigung gesetzt, was
-   %den jeweiligen Bildpunkt Grau erscheinen lässt
-   saturationChannel = HSV(:,:,2);
-   saturationChannel(colorMask) = 0;
-   HSV(:,:,2) = saturationChannel;
-   
-   image = hsv2rgb(HSV);
-end
+%Save image with isolation effect
+imwrite(colorIsolatedImage, 'ES02/bmw_isolated.png');

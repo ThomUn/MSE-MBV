@@ -1,43 +1,46 @@
-I = imread('bmw.jpg');
+clear all
+IM = imread('bmw.jpg');
 
-subplot(2,1,1);
-imshow(I);
-subplot(2,2,1);
-Ivignetted = vignette(I,0.1);
-imshow(Ivignetted);
-imwrite(Ivignetted, 'vignetted.png');
+image = rgb2hsv(IM);
+degrees = 0.1;
 
-function image = vignette(image, degrees)
-    image = rgb2hsv(image);
-    %Berechnet den Bildmittelpunkt
-    Xmid = ceil(size(image,1)/2);
-    Ymid = ceil(size(image,2)/2);
-    
-    %Berechnet ab welchem Radius vom Mittelpunkt aus die Vignettierung
-    %abgeschnitten wird
-    cutoffRadius = ((1-degrees) * max([Xmid Ymid]));
-    
-    [X,Y] = meshgrid(1:1:2*Xmid, 1:1:2*Ymid);
-    
-    %Berechnet die Distanz der Vektoren zum Mittelpunkt
-    distances = sqrt((Xmid-X).^2 + (Ymid-Y).^2);
-    distances = distances';
-    
-    %Alle Distanzen die größer als der berechnete cutoff-Radius sind werden
-    %Teil der Vignettierung
-    notInCircle = distances > cutoffRadius;
-    
-    %Berechnet die Distanz der Vektoren zum Mittelpunkt hin
-    distances = 1- distances ./ sqrt((Xmid^2 + Ymid^2));
-    
-    valueChannel = image(:,:,3);
-    
-    %Der Faktor 5 verhindert, dass die Multiplikation mit der jeweiligen
-    %Distanz zur Mitte hin einen zu harten Rand erzeugt - es wird
-    %zusätzlich maximal mit 1 multipliziert, da Bildbereiche sonst
-    %aufgehellt würden
-    valueChannel(notInCircle) = valueChannel(notInCircle) .* min(5*distances(notInCircle),1);
-    image(:,:,3) = valueChannel;
-    
-    image = hsv2rgb(image);
-end
+%Calculate middle points
+Xmid = ceil(size(image,1)/2);
+Ymid = ceil(size(image,2)/2);
+
+%Calculate from which radius the vignette should be cut off
+cutoffRadius = ((1-degrees) * max([Xmid Ymid]));
+
+%Create meshgrid with maximum numbers of pixels
+[X,Y] = meshgrid(1:1:2*Xmid, 1:1:2*Ymid);
+
+%Calculates distance of vectors to middle point
+distances = sqrt((Xmid-X).^2 + (Ymid-Y).^2);
+distances = distances';
+
+%Calculate values which are outside the radius
+notInCircle = distances > cutoffRadius;
+
+%Calculates distance of vectors to middle point
+distances = 1- distances ./ sqrt((Xmid^2 + Ymid^2));
+
+valueChannel = image(:,:,3);
+
+%Set value V in the image according to the distances
+valueChannel(notInCircle) = valueChannel(notInCircle) .* min(5*distances(notInCircle),1);
+image(:,:,3) = valueChannel;
+
+%Convert hsv2rgb
+vignettedImage = hsv2rgb(image);
+
+%Save vignetted image
+imwrite(vignettedImage, 'ES02/bmw_vignetted.png');
+
+%Display original and vignetted image
+subplot(1,2,1);
+imshow(IM);
+title('Original image');
+
+subplot(1,2,2);
+imshow(vignettedImage);
+title('Image with vignette effect');

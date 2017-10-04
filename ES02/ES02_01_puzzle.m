@@ -1,5 +1,4 @@
 clear all;
-
 %% Read image
 img = imread('15-puzzle_scrambled.jpg');
 
@@ -9,17 +8,17 @@ rotatedImg = imrotate(img,-35);
 %% Crop away the black frame
 backgroundCropped = imcrop(rotatedImg, [700, 700, 1468, 1470]);
 
-%%Shift picture horizontally and vertically
-%shiftedCropped = circshift(cropped, -600);
+%% Shift picture horizontally and vertically
 restoredImg = circshift(circshift(backgroundCropped, -600), -400, 2);
+
 %% Save image
 imwrite(restoredImg,  'ES02/15-puzzle_restored.jpg');
 
-%%Crop picture without background
+%% Crop picture without background
 onlyPuzzleCropped = imcrop(restoredImg, [142, 179, 1180, 1150]);
 imwrite(onlyPuzzleCropped, 'ES02/15-puzzle_cropped.png');
 
-%%Crop all tiles in one
+%% Crop all tiles in one
 allTiles = imcrop(onlyPuzzleCropped, [90 75 990 990]);
 
 %% Extract all individual tiles

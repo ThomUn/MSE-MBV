@@ -1,65 +1,72 @@
 clear all
-RGB = imread('mountain.jpg');
+IM = imread('mountain.jpg');
 
-%Kanäle werden aus den jeweiligen Matrix-Dimensionen des eingelesenen
-%Bildes berechnet (1. Dim = Rot, 2. Dim = Grün, 3. Dim = Blau)
-Cred = RGB(:,:,1);
-Cgreen = RGB(:,:,2);
-Cblue = RGB(:,:,3);
+%Create RGB channels
+channelRed = IM(:,:,1);
+channelGreen = IM(:,:,2);
+channelBlue = IM(:,:,3);
 
-%Die Null-Matrix wird benötigt um das Bild im jeweiligen Kanal korrekt
-%anzuzeigen. Würde man lediglich den Kanal anzeigen, so interpretiert
-%Matlab das (zurecht) als Monochromes Bild
-zeroMatrix = zeros(size(RGB,1),size(RGB,2));
-Ired = cat(3, Cred, zeroMatrix, zeroMatrix);
-Igreen = cat(3, zeroMatrix, Cgreen, zeroMatrix);
-Iblue = cat(3, zeroMatrix, zeroMatrix, Cblue);
+%Create matrix with zero values to display the channels the right way
+zeroMatrix = zeros(size(IM,1),size(IM,2));
+redImage = cat(3, channelRed, zeroMatrix, zeroMatrix);
+greenImage = cat(3, zeroMatrix, channelGreen, zeroMatrix);
+blueImage = cat(3, zeroMatrix, zeroMatrix, channelBlue);
 
-%Graustufenbild aus RGB mittels rgb2gray
-Igray = rgb2gray(RGB);
+%Convert to gray image
+grayImage = rgb2gray(IM);
 
-%Konvertieren in ein indiziertes Bild mit einer Farbpalette von lediglich
-%16 Farben
-[Iindexed, map] = rgb2ind(RGB, 16);
+%Convert to indexed image with a 16-color map
+[indexedImage16, map] = rgb2ind(IM, 16);
+
+%Display the different versions of the image
 figure(1);
-subplot(2,3,1); imshow(RGB);
-subplot(2,3,2); imshow(Ired);
-subplot(2,3,3); imshow(Igreen);
-subplot(2,3,4); imshow(Iblue);
-subplot(2,3,5); imshow(Igray);
-subplot(2,3,6); imshow(Iindexed, map);
+subplot(2,3,1); 
+imshow(IM);
+title('Original image');
 
-%Anzeigen des Originalbilds
+subplot(2,3,2);
+imshow(redImage);
+title('Red image');
+
+subplot(2,3,3);
+imshow(greenImage);
+title('Green image');
+
+subplot(2,3,4); 
+imshow(blueImage);
+title('Blue image');
+
+subplot(2,3,5);
+imshow(grayImage);
+title('Gray image');
+
+subplot(2,3,6);
+imshow(indexedImage16, map);
+title('Indexed image with 16-color map');
+
+%Display original image
 figure(2);
 subplot(2,2,1);
-imshow(RGB);
+imshow(IM);
 title('Original');
 
 subplot(2,2,2);
-%Konvertieren des RGB-Bildes in den HSV-Farbraum
-HSV = rgb2hsv(RGB);
+%Convert rgb image to HSV
+HSV = rgb2hsv(IM);
 
-%Intensivieren der Farben um 50%
-HSVintensified = cat(3, HSV(:,:,1), HSV(:,:,2) * 1.50, HSV(:,:,3));
-imshow(hsv2rgb(HSVintensified));
+%Intensify color saturation by 50%
+HSVincreasedSaturation = cat(3, HSV(:,:,1), HSV(:,:,2) * 1.50, HSV(:,:,3));
+imshow(hsv2rgb(HSVincreasedSaturation));
 title('Intensified colors by 50%');
 
-%Helligkeit um 50% erhöht
+%Brightness increased by 50%
 subplot(2,2,3);
-HSVbrightned = cat(3, HSV(:,:,1), HSV(:,:,2), HSV(:,:,3) * 1.50);
-imshow(hsv2rgb(HSVbrightned));
-title('Increased Brightness by 50%');
+HSVincreasedBrightness = cat(3, HSV(:,:,1), HSV(:,:,2), HSV(:,:,3) * 1.50);
+imshow(hsv2rgb(HSVincreasedBrightness));
+title('Increased brightness by 50%');
 
-%Nachdem Hue einen Wert zwischen 0 und 1 annehmen kann, können die Farben
-%nicht einfach mit einem Prozentwert multipliziert werden. HUE gibt die
-%Position auf einem geschlossenen Farbkreis an (d.h. die Werte 0 und 1 sind
-%idente Farben). Ein Verschub der Farben muss mit einer Addition um
-%den Prozentwert MODULO 1 erfolgen. Wenn ein Farbton daher über 1
-%hinausragt muss der entsprechende Umkreisabstand vom Wert 0 (bzw. 1) berechnet
-%werden.
-%In diesem Fall wird also jeder VALUE-Wert mit 90/360 (90°/360° = 0.25 =
-%25%) MODULO 1 berechnet
+%Shift colors by 180 degrees -> display complementary colors
 subplot(2,2,4);
-HSVshifted = cat(3, mod(HSV(:,:,1) + 180/360,1.0) , HSV(:,:,2), HSV(:,:,3));
-imshow(hsv2rgb(HSVshifted));
-title('Colors shifted by 25%/90°');
+HSVcomplementary = cat(3, mod(HSV(:,:,1) + 180/360,1.0) , HSV(:,:,2), HSV(:,:,3));
+imshow(hsv2rgb(HSVcomplementary));
+title('Display image with Complementary colors');

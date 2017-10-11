@@ -1,4 +1,4 @@
-clear all
+clear all;
 
 %% read image & rgb2grey();
 IM = rgb2gray(imread('ES03/room.jpg'));

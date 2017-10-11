@@ -22,6 +22,8 @@ newIM(:,:,1) = Rfactor.*IM(:,:,1);
 newIM(:,:,2) = Gfactor.*IM(:,:,2);
 newIM(:,:,3) = Bfactor.*IM(:,:,3);
 
+imwrite(newIM, 'ES03/white-picture-enhanced.jpg');
+
 %% Show original
 subplot(2,2,1);
 imshow(IM)

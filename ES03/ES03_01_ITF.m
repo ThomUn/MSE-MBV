@@ -25,6 +25,16 @@ subplot(1,2,2);
 imshow(applyITF(IM, gamma(0.25,128,127)));
 title('Image after gamma function');
 
+%% ----- SIGMOID -----
+figure(3);
+subplot(1,2,1);
+plot(gamma(0.25,128,127));
+title('sigmoid function');
+hold on
+
+subplot(1,2,2);
+imshow(applyITF(IM, sigmoid(50, 75)));
+title('Image after sigmoid function');
 
 %% functions
 function image = applyITF(image, itf)
@@ -42,6 +52,10 @@ function g = gamma(gamma, center, width) %the latter two arguments are optional
     g = window(center, width).^gamma;
 end
 
-function sigmoid = sigmoid(center, width)
-
+%% NOT FINISHED
+function s = sigmoid(center, width)
+    center = center / 255;
+    width = width / 255;
+    vector = linspace(0,1, 256);
+    s = (1./(1+exp(-((vector-center)./(width/2)))));
 end

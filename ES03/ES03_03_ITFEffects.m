@@ -1,67 +1,59 @@
-original = imread('white-picture.jpg');
-sepia = imread('castle_sepia.jpg');
+clear all;
 
-figure;
-subplot(1,3,1);
-hold on;
-redOrig = original(:,:,1);
-redSepia = sepia(:,:,1);
-scatter(redOrig(:), redSepia(:));
+% Add noise with http://pinetools.com/add-noise-image 
+% 50% Amount of noise
+% 50% Strength of noise
 
-redItf = linspace(107, 117, 125);
-
-redItf = [redItf linspace(117,190, 130)];
-
-plot(redItf);
-legend('Scatter plot', 'Approximated IFT');
-title('Red');
+%% read original image
+IM_original = imread('castle.jpg');
 
 
-subplot(1,3,2);
-hold on;
-greenOrig = original(:,:,2);
-greenSepia = sepia(:,:,2);
-scatter(greenOrig(:),greenSepia(:));
+%% read image with noise
+IM_effect = imread('castle-noise.jpg'); 
 
-greenItf = linspace(50,190,255);
+%% show original image
+subplot(4,2,1);
+imshow(IM_original);
+title('Original image');
 
-plot(greenItf);
-legend('Scatter plot', 'Approximated IFT');
-title('Green');
+%% show image with effect
+subplot(4,2,2);
+imshow(IM_effect);
+title('Image with effect');
 
+%% show histogram of original image
+subplot(4,2,3);
+imhist(IM_original);
+title('Histogram of original image');
 
-subplot(1,3,3);
-hold on;
-blueOrig = original(:,:,3);
-blueSepia = sepia(:,:,3);
-scatter(blueOrig(:),blueSepia(:));
+%% show histogram of image with effect
+subplot(4,2,4);
+imhist(IM_effect);
+title('Histogram of image with effect');
 
-blueItf = linspace(20, 120, 110);
+%% use medfilt2 for each channel
+red = medfilt2(IM_effect(:, :, 1), [3 3]);
+green = medfilt2(IM_effect(:, :, 2), [3 3]);
+blue = medfilt2(IM_effect(:, :, 3), [3 3]);
 
-blueItf = [blueItf linspace(120, 180, 145)];
+%% combine the 3 RGB channels to one "noise free" picture
+IM_effect = cat(3, red, green, blue);
 
-plot(blueItf);
-legend('Scatter plot', 'Approximated IFT');
-title('Blue');
+%% show restored image
+subplot(4,2,5);
+imshow(IM_effect);
+title('Restored image');
 
+%% add noise to picture
+IM_noise = imnoise(IM_original, 'salt & pepper', 0.09);
 
+%% show approximated effect image
+subplot(4,2,6);
+imshow(IM_noise);
+title('Approximated effect image');
 
-newRed = applyITF(original(:,:,1), redItf);
-newGreen = applyITF(original(:,:,2), greenItf);
-newBlue = applyITF(original(:,:,3), blueItf);
+%% show histogram of approximated effect image
+subplot(4,2,8);
+imhist(IM_noise);
+title('Histogram of approximated effect image ');
 
-
-newImage = uint8(cat(3, newRed, newGreen, newBlue));
-
-figure;
-subplot(1,3,1);
-imshow(original);
-title('Original');
-
-subplot(1,3,2);
-imshow(sepia);
-title('Original sepia filter from GIMP');
-
-subplot(1,3,3);
-imshow(newImage);
-title('Approximated sepia filter');

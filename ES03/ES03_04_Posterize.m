@@ -11,42 +11,42 @@ title('original image');
 
 %% Show posterized image
 subplot(2,2,2);
-[IM_P, itf] = posterize(IM,4);
-%posterize(IM, [0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1]);
-%posterize(IM, [0.2 0.2 0.2 0.2]);
-%posterize(IM, [0.4 0.3 0.3]);
-%posterize(IM, [0.5 0.5]);
-imshow(IM_P);
+[IM_posterized, itf] = posterize(IM,[0.3 0.2 0.1 0.2]);
+%[IM_P, itf] = posterize(IM,5);
+imshow(IM_posterized);
 title('posterized image');
 
 %% Show histogram of original image
 subplot(2,2,3);
-hist = imhist(IM) / max(imhist(IM_P));
+hist = imhist(IM) / max(imhist(IM));
 cumHist = cumsum(hist) / max(cumsum(hist));
 plot(hist);hold on;
 plot(cumHist);hold on;
 plot(itf);
 ylim([0 1]);
-title('original image histogram');
+title('histogram of original image');
 hold off;
 
 %% Show histogram of posterized image
 subplot(2,2,4);
-hist = imhist(IM_P) / max(imhist(IM_P));
+hist = imhist(IM_posterized) / max(imhist(IM_posterized));
 cumHist = cumsum(hist) / max(cumsum(hist));
-plot(hist);hold on;
-plot(cumHist);hold on;
+plot(hist); hold on;
+plot(cumHist); hold on;
 ylim([0 1]);
-title('Histogram of posterized image');
+title('histogram of posterized image');
+
+imwrite(IM_posterized, 'ES03/castle-posterized.jpg');
 
 %% Functions
 function image = applyITF(image, itf)
     image = itf(image+1);
 end
+
 function [image,itf] = posterize(img, numberOfLevels) 
     if nargin == 1
         numberOfLevels = 3;
-    end
+    end 
     if size(numberOfLevels) == 1
         matrix = linspace(0,1,numberOfLevels);
         matrix = repmat(matrix,round(255/numberOfLevels),1);

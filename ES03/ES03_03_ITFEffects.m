@@ -1,4 +1,4 @@
-original = imread('castle.jpg');
+original = imread('white-picture.jpg');
 sepia = imread('castle_sepia.jpg');
 
 figure;

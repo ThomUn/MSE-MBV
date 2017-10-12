@@ -10,7 +10,7 @@ itf = uint8(255:-1:0);
 [x,n] = imhist(IM);
 cum_hist = cumsum(x)/numel(IM);
 
-%% a
+%% apply ITF
 afterApplyingITF = applyITF(IM, cum_hist);
 
 %% cumulative histogram after applying ITF to original

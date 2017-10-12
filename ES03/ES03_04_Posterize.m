@@ -12,7 +12,7 @@ title('original image');
 %% Show posterized image
 subplot(2,2,2);
 [IM_posterized, itf] = posterize(IM,[0.3 0.2 0.1 0.2]);
-%[IM_P, itf] = posterize(IM,5);
+%[IM_posterized, itf] = posterize(IM, 5);
 imshow(IM_posterized);
 title('posterized image');
 

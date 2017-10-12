@@ -1,12 +1,11 @@
 clear all;
 
 % Add noise with http://pinetools.com/add-noise-image 
-% 50% Amount of noise
-% 50% Strength of noise
+% 50% amount of noise
+% 50% strength of noise
 
 %% read original image
 IM_original = imread('castle.jpg');
-
 
 %% read image with noise
 IM_effect = imread('castle-noise.jpg'); 
@@ -43,9 +42,10 @@ IM_effect = cat(3, red, green, blue);
 subplot(4,2,5);
 imshow(IM_effect);
 title('Restored image');
+imwrite(IM_effect, 'ES03/castle-restored.jpg');
 
 %% add noise to picture
-IM_noise = imnoise(IM_original, 'salt & pepper', 0.09);
+IM_noise = imnoise(IM_original, 'salt & pepper', 0.01);
 
 %% show approximated effect image
 subplot(4,2,6);

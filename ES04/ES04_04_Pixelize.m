@@ -1,4 +1,3 @@
-% Load jpeg files 
 clear all;
 
 %% Read image

@@ -7,6 +7,7 @@ IM=rgb2gray(imread('beans.jpg'));
 %% Call comic function
 comic(IM);
 
+%% Comic function
 function image = comic(image)
     % Display original image
     figure(1);

@@ -1,8 +1,8 @@
 clear all;
 
 %% Read image
-IM = rgb2gray(imread('castle.jpg'));
-%IM = rgb2gray(imread('ramsay.jpg'));
+%IM = rgb2gray(imread('castle.jpg'));
+IM = rgb2gray(imread('ramsay.jpg'));
 
 %% Choose area to pixelize
 mask = roipoly(IM);
@@ -20,6 +20,7 @@ subplot(1,2,2);
 imshow(IM_new);
 title('Pixelized image');
 
+%% Pixelize function
 function IM_new = pixelize(image, pixelsize, mask)
     fun = @(x) uint8(ones(size(x))).*mean(x(:));
     IM_new = blkproc(image, [pixelsize pixelsize], fun);

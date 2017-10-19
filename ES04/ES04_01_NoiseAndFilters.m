@@ -1,6 +1,6 @@
 clear all;
 
-% Read image
+%% Read image
 IM = rgb2gray(imread('ES04/castle.jpg'));
 
 % Apply 1.level of gaussian noise to image

@@ -1,46 +1,90 @@
 clear all;
 
+%% Read image and convert to gray
 IM = rgb2gray(imread('ramsay.jpg'));
 
-figure;
-subplot(3,2,1);
+%% Median function --------------------------------------------------------
+% Show original
+figure(1);
+subplot(1,3,1);
 imshow(IM);
-title('original')
+title('Original')
 
-subplot(3,2,2);
-imshow(medianFilter(IM, 10));
-title('median 10')
+% Show 10x10 median function
+subplot(1,3,2);
+imshow(medianFunction(IM, 10));
+title('10x10 median');
 
-subplot(3,2,3);
+% Show 15x15 median function
+subplot(1,3,3);
+imshow(medianFunction(IM, 15));
+title('15x15 median');
+
+%% Rotate function --------------------------------------------------------
+figure(2);
+subplot(1,3,1);
 imshow(IM);
-title('original')
+title('Original')
 
-subplot(3,2,4);
-%imshow(rotate(IM, 10));
-title('rotate')
+subplot(1,3,2);
+imshow(rotate2(IM, 3));
+title('rotate');
 
-subplot(3,2,5);
+%% Contrast function ------------------------------------------------------
+% Show original image
+figure(3);
+subplot(1,3,1);
 imshow(IM);
-title('original')
+title('original');
 
-subplot(3,2,6);
+% Show 5x5 contract image
+subplot(1,3,2);
 imshow(contrast(IM, 5));
-title('contrast')
+title('5x5 contrast');
 
-%median
-function IM = medianFilter(image, effectSize)
-medianHandle = @(x) median(x(:));
-IM = nlfilter(image, [effectSize effectSize], medianHandle);
+% Show 10x10 contract image
+subplot(1,3,3);
+imshow(contrast(IM, 10));
+title('10x10 contrast');
+
+%% Median function
+function IM = medianFunction(image, effectSize)
+    fun = @(x) median(x(:));
+    IM = nlfilter(image, [effectSize effectSize], fun);
 end
 
-%rotate -> not working
-function IM = rotate(image, effectSize)
-medianHandle = @(x) ones(5);
-IM = nlfilter(image, [effectSize effectSize], medianHandle);
+%% Rotate function -> not working
+%function IM = rotate(image, effectSize)
+%    meanHandle = @(x) mean2(x(:));
+%    varianceHandle = @(x) var(nlfilter(image, [effectSize effectSize], meanHandle));
+%    minHandle = @(x) min(nlfilter(image, [effectSize effectSize], varianceHandle));
+%    IM = nlfilter(image, [effectSize effectSize], minHandle);
+%end
+
+ function [img] = rotate(img,filterSize,rotatingSize)
+    rotatingAynFunc = @(x) roatatingBlockCalc(x,rotatingSize);
+    img = nlfilter(img, [filterSize filterSize], rotatingAynFunc);
 end
 
-%local contracts
+function [value] = roatatingBlockCalc(x,size)  
+    %%% Get Index of Block with the least Standard Devitation
+    stdAynFunc = @(y) std(double(y(:)));    
+    rotatingBlocksStd = uint8(blkproc(x, [size size], stdAynFunc));
+    % Convert to one dimension
+    rotatingBlocksStd = rotatingBlocksStd(:);
+    % Get Index
+    [rBStd,indexMinStd] = min(rotatingBlocksStd);
+
+    %%% Get Mean of Rotating Blocks
+    meanAynFunc = @(y) mean(double(y(:)));    
+    rotatingBlocksMean = uint8(blkproc(x, [size size], meanAynFunc));
+
+    %%% Value is Rotating Block with the least Standard Devitation (by index)
+    value = uint8(rotatingBlocksMean(indexMinStd));  
+end 
+
+%% Contrast function
 function IM = contrast(image, effectSize)
-cont = @(x) max(x(:)) - min(x(:));
-IM = nlfilter(image, [effectSize effectSize], cont);
+    fun = @(x) max(x(:)) - min(x(:));
+    IM = nlfilter(image, [effectSize effectSize], fun);
 end

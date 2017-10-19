@@ -1,8 +1,8 @@
 clear all;
 
 %% Read image
-IM=rgb2gray(imread('ramsay.jpg'));
-%IM=rgb2gray(imread('beans.jpg'));
+%IM=rgb2gray(imread('ramsay.jpg'));
+IM=rgb2gray(imread('beans.jpg'));
 
 %% Call comic function
 comic(IM);

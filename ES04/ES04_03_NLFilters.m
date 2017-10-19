@@ -21,7 +21,7 @@ subplot(1,3,3);
 imshow(medianFunction(IM, 15));
 title('15x15 median image');
 
-%% Rotating mask function --------------------------------------------------------
+%% Rotating mask function -------------------------------------------------
 figure(2);
 subplot(1,2,1);
 imshow(IM);

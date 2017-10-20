@@ -11,10 +11,10 @@ title('Original image in gray');
 subplot(1,2,2);
 [newIM, optimalThreshold] = applyIterativeOptimalThreshold(IM);
 imshow(newIM);
-title(['Optimal threshold: ',num2str(optimalThreshold)]);
+title(['Optimal threshold: ', num2str(optimalThreshold)]);
 
 %% 2. coins----------------------------------------------------------------
-IM = rgb2gray(imread('PICS/coins2.jpg'));
+IM = rgb2gray(imread('PICS/coins.jpg'));
 figure(2);
 
 subplot(1,2,1);
@@ -24,10 +24,10 @@ title('Original image in gray');
 subplot(1,2,2);
 [newIM, optimalThreshold] = applyIterativeOptimalThreshold(IM);
 imshow(newIM);
-title(['Optimal threshold: ',num2str(optimalThreshold)]);
+title(['Optimal threshold: ', num2str(optimalThreshold)]);
 
-%% 3. coins----------------------------------------------------------------
-IM = rgb2gray(imread('PICS/coins3.jpg'));
+%% 3. coin-----------------------------------------------------------------
+IM = rgb2gray(imread('PICS/coin.jpg'));
 figure(3);
 
 subplot(1,2,1);
@@ -37,7 +37,7 @@ title('Original image in gray');
 subplot(1,2,2);
 [newIM, optimalThreshold] = applyIterativeOptimalThreshold(IM);
 imshow(newIM);
-title(['Optimal threshold: ',num2str(optimalThreshold)]);
+title(['Optimal threshold: ', num2str(optimalThreshold)]);
 
 %% 4. twitter logo---------------------------------------------------------
 
@@ -51,7 +51,7 @@ title('Original image in gray');
 subplot(1,2,2);
 [newIM, optimalThreshold] = applyIterativeOptimalThreshold(IM);
 imshow(newIM);
-title(['Optimal threshold: ',num2str(optimalThreshold)]);
+title(['Optimal threshold: ', num2str(optimalThreshold)]);
 
 %% 5. pigeon---------------------------------------------------------------
 IM = rgb2gray(imread('PICS/pigeon.jpg'));
@@ -64,48 +64,50 @@ title('Original image in gray');
 subplot(1,2,2);
 [newIM, optimalThreshold] = applyIterativeOptimalThreshold(IM);
 imshow(newIM);
-title(['Optimal threshold: ',num2str(optimalThreshold)]);
+title(['Optimal threshold: ', num2str(optimalThreshold)]);
 
 %% Function to find optimal threshold
 function [newImage, optimalThreshold] = applyIterativeOptimalThreshold(IM)
     backgroundValues = getCornerValues(IM);
 
-    % Calc mean of background
-    backgroundMeanWithouThreshold = mean(backgroundValues);
+    % Set first threshold to mean of background
+    thresholdIterator = 1;
+    threshold(thresholdIterator) = mean(backgroundValues);
 
-    %Set first Threshold as mean of background
-    tresholdIterator = 1;
-    treshold(tresholdIterator) = backgroundMeanWithouThreshold;
+    % Get mean of background with applied threshold
+    backgroundWithThreshold = backgroundValues <= threshold(thresholdIterator); 
+    meanOfBackground = mean(backgroundValues(backgroundWithThreshold));
 
-    %Get mean of Background with Treshold
-    backgroundWithTreshold = backgroundValues <= treshold(tresholdIterator); 
-    meanOfBackground = mean(backgroundValues(backgroundWithTreshold));
-
-    %Get mean of Foreground with Treshold
+    % Get mean of foreground with applied threshold
     foregroundVector = getForegroundValues (IM);
-    foregroundWithTreshold = foregroundVector > treshold(tresholdIterator);
-    meanOfForeground = mean(foregroundVector(foregroundWithTreshold));
+    foregroundWithThreshold = foregroundVector > threshold(thresholdIterator);
+    meanOfForeground = mean(foregroundVector(foregroundWithThreshold));
 
-    %Get new Treshold
-    tresholdIterator = tresholdIterator + 1;
-    treshold(tresholdIterator) = (meanOfBackground + meanOfForeground)./2;
+    % Get new threshold
+    thresholdIterator = thresholdIterator + 1;
+    threshold(thresholdIterator) = (meanOfBackground + meanOfForeground)./2;
 
-    while treshold(tresholdIterator) ~= treshold(tresholdIterator - 1)
-        %Get mean of Background with Treshold
-        backgroundWithTreshold = backgroundValues <= treshold(tresholdIterator); 
-        meanOfBackground = mean(backgroundValues(backgroundWithTreshold));
+    % Search for new optimal threshold
+    % Repeat until T(t+1) = T(t)
+    while threshold(thresholdIterator) ~= threshold(thresholdIterator - 1)
+        % Get mean of background with applied threshold
+        backgroundWithThreshold = backgroundValues <= threshold(thresholdIterator); 
+        meanOfBackground = mean(backgroundValues(backgroundWithThreshold));
 
-        %Get mean of Foreground with Treshold
+        % Get mean of foreground with applied threshold
         foregroundVector = getForegroundValues (IM);
-        foregroundWithTreshold = foregroundVector > treshold(tresholdIterator);
-        meanOfForeground = mean(foregroundVector(foregroundWithTreshold));
+        foregroundWithThreshold = foregroundVector > threshold(thresholdIterator);
+        meanOfForeground = mean(foregroundVector(foregroundWithThreshold));
 
-        %Get new Treshold
-        tresholdIterator = tresholdIterator + 1;
-        treshold(tresholdIterator) = (meanOfBackground + meanOfForeground)./2;
+        % Get new threshold
+        thresholdIterator = thresholdIterator + 1;
+        threshold(thresholdIterator) = (meanOfBackground + meanOfForeground)./2;
     end
 
-    optimalThreshold = treshold(tresholdIterator)./256;
+    % Get optimal threshold divided by the maximum of values
+    optimalThreshold = threshold(thresholdIterator)./255;
+    
+    % Apply optimalThreshold to image
     newImage = imbinarize(IM, optimalThreshold);
 end
 
@@ -122,6 +124,7 @@ function cornerValues = getCornerValues(image)
     cornerValues = [cornerLT, cornerRT, cornerLB, cornerRB];
 end
 
+%% Function to get foreground values
 function allValuesExceptCorners = getForegroundValues(image)
     numberOfRows = size(image, 1);
     numberOfColumns = size(image, 2);

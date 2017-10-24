@@ -4,3 +4,13 @@
 %create a figure that displays
 %• original image
 %• segmented image
+
+I = rgb2gray(imread('PICS/buttons.jpg'));
+
+[c,r,~] = impixel(I);
+
+%Die iterative Variante ist deutlich performanter
+
+% segmentedImage = regionGrowing(I, c,r, 5, 5);
+segmentedImage = regionGrowingIterative(I, c, r, 15, 5);
+imshow(segmentedImage, []);

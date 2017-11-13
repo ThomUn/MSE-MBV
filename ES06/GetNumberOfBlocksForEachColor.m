@@ -5,7 +5,8 @@ function [numbers] = GetNumberOfBlocksForEachColor(image)
     hsvImage = rgb2hsv(image);
     
     stats = regionprops(imageMask, 'all');
-     
+    
+    % Remove smaller objects
     statsAreaVector = cat(1, stats.Area);
     relevantStats = statsAreaVector > 10000;
     
@@ -23,12 +24,11 @@ function [numbers] = GetNumberOfBlocksForEachColor(image)
             blue = blue + 1;
         else if (colorOnCenter > 340 && colorOnCenter < 360)
             red = red + 1;
-        else if (colorOnCenter > 120 && colorOnCenter < 150)
+        else if (colorOnCenter > 115 && colorOnCenter < 150)
             green = green + 1;
         else
-            disp(colorOnCenter);
-            disp(floor(relevantCentroidStats(i,2)));
-            disp(floor(relevantCentroidStats(i,1)));
+            % JUST FOR DEBUGGING
+            % disp(colorOnCenter);
             end
             end
         end

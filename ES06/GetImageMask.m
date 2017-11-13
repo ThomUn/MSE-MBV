@@ -14,6 +14,9 @@ function [imageMask] = GetImageMask(image)
     %figure(3);
     %imshow(~thresholdedImage);
     
-    imageMask = imfill(~thresholdedImage, 'holes');
+    thresholdedImage = bwmorph(~ thresholdedImage, 'dilate', 20);
+    thresholdedImage = bwmorph(thresholdedImage, 'erode', 40);
+    imageMask = thresholdedImage;
+    %imageMask = imfill(~thresholdedImage, 'holes');
 end
 

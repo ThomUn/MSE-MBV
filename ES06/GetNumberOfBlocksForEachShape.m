@@ -1,7 +1,6 @@
-function [counter] = GetNumberOfBlocksForEachColor(image)
+function [counter] = GetNumberOfBlocksForEachShape(image)
 
-
-IM = rgb2gray(image);
+    IM = rgb2gray(image);
     treshold = graythresh(IM);
     IM_b = imbinarize(IM, treshold);
 
@@ -13,34 +12,31 @@ IM = rgb2gray(image);
     countCircle = 0;
     countRect = 0;
     [B, L] = bwboundaries(IM_b, 'noholes');
-    countSquare= 0;
 
-
-     for object = 1:length(B)
-        %ignore small objects
+    for object = 1:length(B)
+        % Remove smaller objects
         if stats(object).Area > 10000
 
-            %get objects perimeter
+            % get objects perimeter
             boundary = B{object};
             delta = diff(boundary) .^ 2;
             perimeter = sum(sqrt(sum(delta, 2)));
 
-            %get roundness
+            % get roundness
             roundness = 4 * pi * stats(object).Area / perimeter ^ 2;
 
-            %check roundness to a certain threshold
+            % check roundness to a certain threshold
             if roundness > 0.75
-                %circle
+                % circle
                 countCircle = countCircle + 1;
             else
-                %rectangle
+                % rectangle
                 countRect = countRect + 1;
             end
         end
-        
-    end
-     
 
-     counter = [countCircle, countRect];
+    end
+
+    counter = [countCircle, countRect];
 end
 

@@ -1,42 +1,44 @@
 function [counter] = GetNumberOfBlocksForEachColor(image)
 
 
-BW = GetImageMask(image);
-%figure(2)
-%imshow(BW);
-% Step 5: Find the boundaries Concentrate only on the exterior boundaries.
-% Option 'noholes' will accelerate the processing by preventing
-% bwboundaries from searching for inner contours. 
-[B,L] = bwboundaries(BW, 'noholes');
+IM = rgb2gray(image);
+    treshold = graythresh(IM);
+    IM_b = imbinarize(IM, treshold);
 
-% Step 6: Determine objects properties
-STATS = regionprops(L, 'all'); % we need 'BoundingBox' and 'Extent'
+    %fill holes
+    IM_b = bwmorph(~ IM_b, 'dilate', 20);
+    IM_b = bwmorph(IM_b, 'erode', 40);
+    stats = regionprops(IM_b, 'Area');
 
-% Step 7: Classify Shapes according to properties
-% Square = 3 = (1 + 2) = (X=Y + Extent = 1)
-% Rectangular = 2 = (0 + 2) = (only Extent = 1)
-% Circle = 1 = (1 + 0) = (X=Y , Extent < 1)
-% UNKNOWN = 0
-countCircle = 0;
-countSquare= 0;
-countRect= 0;
+    countCircle = 0;
+    countRect = 0;
+    [B, L] = bwboundaries(IM_b, 'noholes');
+    countSquare= 0;
 
-     for i = 1 : length(STATS)
-          W(i) = uint8(abs(STATS(i).BoundingBox(3)-STATS(i).BoundingBox(4)) < 0.1);
-          W(i) = W(i) + 2 * uint8((STATS(i).Extent - 1) == 0 );
-          centroid = STATS(i).Centroid;
-          switch W(i)
-              case 1
-                  plot(centroid(1),centroid(2),'wO');
-                  countCircle = countCircle + 1;
-              case 2
-                  countSquare = countSquare + 1;
-                    plot(centroid(1),centroid(2),'wX');
-              case 3
-                  countRect = countRect + 1;
-                  plot(centroid(1),centroid(2),'wS');
-          end
-     end
+
+     for object = 1:length(B)
+        %ignore small objects
+        if stats(object).Area > 10000
+
+            %get objects perimeter
+            boundary = B{object};
+            delta = diff(boundary) .^ 2;
+            perimeter = sum(sqrt(sum(delta, 2)));
+
+            %get roundness
+            roundness = 4 * pi * stats(object).Area / perimeter ^ 2;
+
+            %check roundness to a certain threshold
+            if roundness > 0.75
+                %circle
+                countCircle = countCircle + 1;
+            else
+                %rectangle
+                countRect = countRect + 1;
+            end
+        end
+        
+    end
      
 
      counter = [countCircle, countRect];

@@ -22,61 +22,52 @@ IM_block = imread('BLOCKS/BLOCKS_001.jpg');
 disp(['NumberOfBlocks:', char(9), num2str(GetNumberOfBlocks(IM_block))]);
 
 %% Requirement 2 ----------------------------------------------------------
-numbers = GetNumberOfBlocksForEachColor(IM_block);
+resultOfColors = GetNumberOfBlocksForEachColor(IM_block);
 disp('NumberOfBlocksForEachColor:');
-disp(['- Red blocks:', char(9), num2str(numbers(1))]); 
-disp(['- Green blocks:', char(9), num2str(numbers(2))]);
-disp(['- Blue blocks:', char(9), num2str(numbers(3))]);
+disp(['- Red blocks:', char(9), num2str(resultOfColors{1}(1))]); 
+disp(['- Green blocks:', char(9), num2str(resultOfColors{2}(1))]);
+disp(['- Blue blocks:', char(9), num2str(resultOfColors{3}(1))]);
 
 %% Requirement 3 ----------------------------------------------------------
-numbers = GetNumberOfBlocksForEachShape(IM_block);
+resultOfShapes = GetNumberOfBlocksForEachShape(IM_block);
 disp('NumberOfBlocksForEachShape:');
-disp(['- Circle shapes:', char(9), num2str(numbers(1))]); 
-disp(['- Rectangle shapes:', char(9), num2str(numbers(2))]);
+disp(['- Circle shapes:', char(9), num2str(resultOfShapes{1}(1))]); 
+disp(['- Rectangle shapes:', char(9), num2str(resultOfShapes{2}(1))]);
 
 %% Requirement 4 ----------------------------------------------------------
-maskObjects(IM_block);
+boxesForImage = GetNumberOfColorAndShapeAndBoundingBox(IM_block);
+plotBoundingBoxesAndLabels(IM_block, boxesForImage);
 
+%% Script for plotting the figures
+IM_block_gray = rgb2gray(IM_block);
+
+figure(1);
 subplot(3,3,1); imshow(IM_block); title('original color');
 
+subplot(3,3,2); imshow(IM_block_gray); title('original gray');
+
+[threshold, EM] = graythresh(IM_block_gray);
+thresholdedImage = imbinarize(IM_block_gray, threshold);
+subplot(3,3,4); imshow(~thresholdedImage); title('threshold');
+
+thresholdedImage = bwmorph(~ thresholdedImage, 'dilate', 20);
+thresholdedImage = bwmorph(thresholdedImage, 'erode', 40);
+subplot(3,3,5); imshow(thresholdedImage); title('morph');
+
+
 %% function for labeling the image
-function [mask] = maskObjects(data)
-    %get each color
-    red = imsubtract(data(:, :, 1), rgb2gray(data));
-    green = imsubtract(data(:, :, 2), (data(:, :, 1)));
-    blue = imsubtract(data(:, :, 3), rgb2gray(data));
-
-    imshow(data)
-
-    %plot each mask
-    plotMask(red, 'red');
-    plotMask(green, 'green');
-    plotMask(blue, 'blue');
-
-end
-
-function plotMask(diff_im, color)
-
-    diff_im = medfilt2(diff_im, [3 3]);
-    diff_im = imbinarize(diff_im, 0.18);
-
-    %remove small objects
-    diff_im = bwareaopen(diff_im, 300);
-
-    bw = bwlabel(diff_im, 8);
-    stats = regionprops(bw, 'BoundingBox', 'Centroid', 'Area');
-
+function void = plotBoundingBoxesAndLabels(IM_block, boxesForImage)
+    figure(2);
+    imshow(IM_block);
     hold on;
-    for object = 1:length(stats)
-        %ignore small objects
-        if stats(object).Area > 10000
-            %mask the objects label in center with boundingbox
-            bb = stats(object).BoundingBox;
-            bc = stats(object).Centroid;
-            rectangle('Position', bb, 'EdgeColor', 'r', 'LineWidth', 1)
-            plot(bc(1), bc(2))
-            a = text(bc(1), bc(2), color);
-            set(a, 'FontName', 'Arial', 'FontSize', 12, 'Color', 'black');
-        end
+    for i = 1:size(boxesForImage, 2)
+        %mask the objects label in center with boundingbox
+        boxCenter = boxesForImage{i}{1};
+        boundingBoxValues = boxesForImage{i}{3};
+        rectangle('Position', boundingBoxValues, 'EdgeColor', 'r', 'LineWidth', 3);
+        plot(boxCenter(1), boxCenter(2))
+        str = text(boxCenter(1), boxCenter(2), boxesForImage{i}{2});
+        set(str, 'FontName', 'Arial', 'FontSize', 12, 'Color', 'black');
+        hold on;
     end
 end

@@ -7,11 +7,12 @@ function [counter] = GetNumberOfBlocksForEachShape(image)
     %fill holes
     IM_b = bwmorph(~ IM_b, 'dilate', 20);
     IM_b = bwmorph(IM_b, 'erode', 40);
-    stats = regionprops(IM_b, 'Area');
+    stats = regionprops(IM_b, 'Area', 'Centroid', 'BoundingBox');
 
     countCircle = 0;
     countRect = 0;
     [B, L] = bwboundaries(IM_b, 'noholes');
+    result = [];
 
     for object = 1:length(B)
         % Remove smaller objects
@@ -29,14 +30,17 @@ function [counter] = GetNumberOfBlocksForEachShape(image)
             if roundness > 0.75
                 % circle
                 countCircle = countCircle + 1;
+                result{object} = {stats(object).Centroid {'circle'} stats(object).BoundingBox};
+                %
             else
                 % rectangle
                 countRect = countRect + 1;
+                result{object} = {stats(object).Centroid {'rectangle'} stats(object).BoundingBox};
             end
         end
 
     end
-
-    counter = [countCircle, countRect];
+    
+    counter = [countCircle, countRect, result];
 end
 

@@ -19,7 +19,6 @@ function [result] = GetNumberOfColorAndShapeAndBoundingBox(image)
                 
                 result{count} = {complete_centroid text boundingBox};
                 count = count + 1;
-                %disp([resultsForEachColor{j}{2}{1} ' ' resultsForEachShape{i}{2}{1}]);
             end
         end
     end

@@ -39,20 +39,7 @@ boxesForImage = GetNumberOfColorAndShapeAndBoundingBox(IM_block);
 plotBoundingBoxesAndLabels(IM_block, boxesForImage);
 
 %% Script for plotting the figures
-IM_block_gray = rgb2gray(IM_block);
-
-figure(1);
-subplot(3,3,1); imshow(IM_block); title('original color');
-
-subplot(3,3,2); imshow(IM_block_gray); title('original gray');
-
-[threshold, EM] = graythresh(IM_block_gray);
-thresholdedImage = imbinarize(IM_block_gray, threshold);
-subplot(3,3,4); imshow(~thresholdedImage); title('threshold');
-
-thresholdedImage = bwmorph(~ thresholdedImage, 'dilate', 20);
-thresholdedImage = bwmorph(thresholdedImage, 'erode', 40);
-subplot(3,3,5); imshow(thresholdedImage); title('morph');
+plotFigures(IM_block)
 
 
 %% function for labeling the image
@@ -70,4 +57,46 @@ function void = plotBoundingBoxesAndLabels(IM_block, boxesForImage)
         set(str, 'FontName', 'Arial', 'FontSize', 12, 'Color', 'black');
         hold on;
     end
+end
+
+%% function for plotting the figures and diagrams
+function void = plotFigures(IM_block)
+    IM_block_gray = rgb2gray(IM_block);
+
+    figure(1);
+    % 1. Show original image
+    subplot(3,3,1); imshow(IM_block); title('original color');
+
+    % 2. Show gray image
+    subplot(3,3,2); imshow(IM_block_gray); title('original gray');
+    
+    % 3. Plot cumhist
+    subplot(3,3,3); imhist(IM_block_gray); title('original gray');
+
+    % 4. Plot thresholded image
+    [threshold, EM] = graythresh(IM_block_gray);
+    thresholdedImage = imbinarize(IM_block_gray, threshold);
+    subplot(3,3,4); imshow(~thresholdedImage); title('threshold');
+    
+    % 5. Plot morphed image
+    thresholdedImage = bwmorph(~ thresholdedImage, 'dilate', 20);
+    thresholdedImage = bwmorph(thresholdedImage, 'erode', 40);
+    subplot(3,3,5); imshow(thresholdedImage); title('morph');
+    
+    % 6. Plot colored holes
+    subplot(3,3,6); imshow(thresholdedImage, jet); title('colormap');
+    
+    
+    % 7. Intensity vs. Area
+    imageMask = GetImageMask(IM_block);
+    stats = regionprops(imageMask, 'all');
+    areaData = stats.Area;
+    intensityData = mean2(IM_block_gray);
+    sz = 25;
+    subplot(3,3,7); scatter(areaData, intensityData, sz);  title('Intensity vs. Area');
+    
+    
+    % 8. Eccentricity vs. Area
+    
+    
 end

@@ -6,17 +6,19 @@
 %DONE 1. a function that accepts an image and returns the total number of blocks in the image
 %DONE 2. a function that accepts an image and returns the total number of blocks for each color in the image
 %DONE 3. a function that accepts an image and returns the total number of blocks for each shape in the image
-%4. a function that accepts an image and returns the total number of blocks for each color and
+%DONE 4. a function that accepts an image and returns the total number of blocks for each color and
 %shape in the image and bounding boxes for all blocks. A script that produces figures of the
 %results (of all sample images) with recognized shapes highlighted in the image(s) using the
 %information returned by the above function(s)
-clear all;
-warning('off','all');
 
+clear all;
+warning('off', 'all');
+
+%% Read different images
 IM_block = imread('BLOCKS/BLOCKS_001.jpg');
 %IM_block = imread('BLOCKS/BLOCKS_002.jpg');
-%IM_block = imread('BLOCKS/BLOCKS_003.jpg');---
-%IM_block = imread('BLOCKS/BLOCKS_004.jpg');---
+%IM_block = imread('BLOCKS/BLOCKS_003.jpg');
+%IM_block = imread('BLOCKS/BLOCKS_004.jpg');
 
 %% Requirement 1 ----------------------------------------------------------
 disp(['NumberOfBlocks:', char(9), num2str(GetNumberOfBlocks(IM_block))]);
@@ -42,15 +44,19 @@ plotBoundingBoxesAndLabels(IM_block, boxesForImage);
 plotFigures(IM_block)
 
 
-%% function for labeling the image
+%% Function for labeling the image
 function void = plotBoundingBoxesAndLabels(IM_block, boxesForImage)
-    figure(2);
+    figure(1);
     imshow(IM_block);
     hold on;
+    % Iterate over results and plot  them
     for i = 1:size(boxesForImage, 2)
-        %mask the objects label in center with boundingbox
+        
+        % Get values of result
         boxCenter = boxesForImage{i}{1};
         boundingBoxValues = boxesForImage{i}{3};
+        
+        % Plot the rectangle and according text
         rectangle('Position', boundingBoxValues, 'EdgeColor', 'r', 'LineWidth', 3);
         plot(boxCenter(1), boxCenter(2))
         str = text(boxCenter(1), boxCenter(2), boxesForImage{i}{2});
@@ -59,11 +65,11 @@ function void = plotBoundingBoxesAndLabels(IM_block, boxesForImage)
     end
 end
 
-%% function for plotting the figures and diagrams
+%% Function for plotting the figures and diagrams
 function void = plotFigures(IM_block)
     IM_block_gray = rgb2gray(IM_block);
 
-    figure(1);
+    figure(2);
     % 1. Show original image
     subplot(3,3,1); imshow(IM_block); title('original color');
 
@@ -71,7 +77,7 @@ function void = plotFigures(IM_block)
     subplot(3,3,2); imshow(IM_block_gray); title('original gray');
     
     % 3. Plot cumhist
-    subplot(3,3,3); imhist(IM_block_gray); title('original gray');
+    subplot(3,3,3); imhist(IM_block_gray); title('threshold');
 
     % 4. Plot thresholded image
     [threshold, EM] = graythresh(IM_block_gray);
@@ -86,7 +92,6 @@ function void = plotFigures(IM_block)
     % 6. Plot colored holes
     subplot(3,3,6); imshow(thresholdedImage, jet); title('colormap');
     
-    
     % 7. Intensity vs. Area
     imageMask = GetImageMask(IM_block);
     stats = regionprops(imageMask, 'all');
@@ -95,8 +100,12 @@ function void = plotFigures(IM_block)
     sz = 25;
     subplot(3,3,7); scatter(areaData, intensityData, sz);  title('Intensity vs. Area');
     
-    
     % 8. Eccentricity vs. Area
-    
+    imageMask = GetImageMask(IM_block);
+    stats = regionprops(imageMask, 'all');
+    areaData = stats.Area;
+    eccentricityData = stats.Eccentricity;
+    sz = 25;
+    subplot(3,3,8); scatter(areaData, eccentricityData, sz);  title('Eccentricity vs. Area');
     
 end
